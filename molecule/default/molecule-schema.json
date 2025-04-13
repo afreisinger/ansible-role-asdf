@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "dependency": {
+      "properties": {
+        "name": {
+          "enum": [
+            "galaxy"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "driver": {
+      "properties": {
+        "name": {
+          "const": "docker"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "platforms": {
+      "items": {
+        "properties": {
+          "cgroupns_mode": {
+            "enum": [
+              "host",
+              "private"
+            ],
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pre_build_image": {
+            "type": "boolean"
+          },
+          "privileged": {
+            "type": "boolean"
+          },
+          "volumes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "image"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "provisioner": {
+      "properties": {
+        "name": {
+          "enum": [
+            "ansible"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "verifier": {
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "enum": [
+            "ansible",
+            "testinfra"
+          ],
+          "type": "string"
+        },
+        "playbooks": {
+          "properties": {
+            "verify": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "driver",
+    "platforms",
+    "provisioner"
+  ],
+  "type": "object"
+}

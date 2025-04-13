@@ -1,0 +1,141 @@
+# .pre-commit-config.yaml
+# -*- mode: yaml -*-
+# vim:ts=2:sw=2:ai:si:syntax=yaml
+---
+minimum_pre_commit_version: 2.9.3
+
+repos:
+  # Generak format
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: pretty-format-json
+        args: ["--autofix"]
+
+  # YAML lint
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.0
+    hooks:
+      - id: yamllint
+        name: yaml lint
+        args: ["-c", ".yamllint.json"]
+
+  # Ansible lint
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v25.2.1
+    hooks:
+      - id: ansible-lint
+        name: ansible lint
+        args: ["-c", ".ansible-lint.yml"]
+        # files: \.(yml|yaml)$
+        files: ^(tasks|handlers|templates|vars|defaults|meta|molecule)/.*\.(yml|yaml)$
+
+  # Dockerfile lint
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        name: dockerfiles lint
+        language: docker_image
+        entry: ghcr.io/hadolint/hadolint hadolint
+        types: ["dockerfile"]
+        args: ["--config", ".hadolint.json"]
+
+  # Markdown lint
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.44.0
+    hooks:
+      - id: markdownlint
+        name: markdown lint
+        args: ["--fix", "--config", ".markdownlint.json"]
+
+    # Workflows lint
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+        name: github actions lint
+        files: \.github/workflows/.*\.ya?ml$
+        args: ["--config-file", ".actionlint.yml"]
+
+  # - repo: https://github.com/markdownlint/markdownlint
+  #   rev: v0.13.0
+  #   hooks:
+  #     - id: markdownlint_docker
+  #       name: Markdownlint Docker
+  #       language: docker_image
+  #       entry: markdownlint/markdownlint
+  #       #files: \.(md|mdown|markdown)$
+  #       types: ["markdown"]
+  #       args: ["--config", ".markdownlint.json"]
+
+  # Shell linters
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+        name: shell check
+        args: ["-x"]
+
+  - repo: https://github.com/pecigonzalo/pre-commit-shfmt
+    rev: v2.2.0
+    hooks:
+      - id: shell-fmt
+        name: shell fmt
+        args: ["-i", "2", "-ci", "-w"]
+
+  - repo: https://github.com/openstack/bashate
+    rev: 2.1.1
+    hooks:
+      - id: bashate
+        name: bash hate
+        args: [-i, E003]
+
+  # Python lint
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: python code formatter
+        language_version: python3
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        name: python lint
+        additional_dependencies: [flake8-bugbear]
+        args: ["--ignore=E501"]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.9.0
+    hooks:
+      - id: mypy
+        name: python type checker
+        additional_dependencies: [types-requests]
+
+  # - repo: local
+  #   hooks:
+  #     - id: hadolint
+  #       name: hadolint
+  #       entry: ./scripts/hadolint.sh
+  #       language: system
+  #       pass_filenames: false
+  #       always_run: true
+  #       files: \.dockerfile$|Dockerfile$
+
+  # - repo: local
+  #   hooks:
+  #     - id: markdownlint
+  #       name: markdownlint
+  #       entry: ./scripts/markdownlint.sh
+  #       language: script
+  #       pass_filenames: false
+  #       always_run: true
+  #       files: ^README.md$

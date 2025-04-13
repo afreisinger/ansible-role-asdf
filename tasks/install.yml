@@ -1,0 +1,32 @@
+---
+
+- name: Install dependencies with apt
+  become: true
+  ansible.builtin.apt:
+    name: "{{ asdf_dependencies }}"
+    update_cache: true
+  when: ansible_os_family == "Debian" or ansible_os_family == "Pengwin"
+
+- name: Install dependencies with Homebrew
+  homebrew:
+    name: "{{ asdf_dependencies }}"
+  when: ansible_os_family == "Darwin"
+
+- name: "Clone asdf repository"
+  ansible.builtin.git:
+    repo: "{{ asdf_git_repo }}"
+    dest: "{{ asdf_dir }}"
+    version: "{{ asdf_version }}"
+
+- name: Ensure completions directory exists
+  ansible.builtin.file:
+    path: "{{ asdf_dir }}/completions"
+    state: directory
+    mode: "0755"
+  when: asdf_init_shell | bool
+
+- name: Generate asdf completion script
+  ansible.builtin.shell:
+    cmd: "{{ asdf_dir }}/bin/asdf completion bash > {{ asdf_dir }}/completions/asdf.bash"
+    creates: "{{ asdf_dir }}/completions/asdf.bash"
+  when: asdf_init_shell | bool

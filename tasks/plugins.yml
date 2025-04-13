@@ -1,0 +1,69 @@
+---
+
+- name: Install dependencies with apt
+  become: true
+  ansible.builtin.apt:
+    name: "{{ asdf_plugin_dependencies }}"
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install dependencies with Homebrew
+  homebrew:
+    name: "{{ asdf_plugin_dependencies }}"
+  when: ansible_os_family == "Darwin"
+
+- name: "Install asdf plugins"
+  ansible.builtin.shell: >-
+    . {{ asdf_dir }}/asdf.sh &&
+    asdf plugin-add {{ item.name }} {{ item.repository | default() }}
+  args:
+    executable: "{{ asdf_install_shell | default(omit) }}"
+    creates: "{{ asdf_dir }}/plugins/{{ item.name }}"
+    chdir: "{{ asdf_home }}"
+  with_items: "{{ asdf_plugins }}"
+  register: plugin_add_result
+  failed_when: >
+    plugin_add_result.rc != 0 and
+    ('Plugin already added' not in plugin_add_result.stderr)
+
+- name: "Install asdf packages"
+  ansible.builtin.shell: >-
+    . {{ asdf_dir }}/asdf.sh &&
+    asdf install {{ item.0.name }} {{ item.1 }}
+  args:
+    executable: "{{ asdf_install_shell | default(omit) }}"
+    creates: "{{ asdf_dir }}/installs/{{ item.0.name }}/{{ item.1 }}"
+    chdir: "{{ asdf_home }}"
+  with_subelements:
+    - "{{ asdf_plugins }}"
+    - versions
+    - flags:
+      skip_missing: true
+
+- name: Get current asdf package versions
+  ansible.builtin.shell: >-
+    set -o pipefail &&
+    . {{ asdf_dir }}/asdf.sh &&
+    asdf current {{ item.name }} |
+    grep -o '{{ item.global | default(item.versions[0]) }}'
+  args:
+    executable: "{{ asdf_install_shell | default(omit) }}"
+    chdir: "{{ asdf_home }}"
+  register: asdf_plugins_versions
+  with_items: "{{ asdf_plugins }}"
+  when: item.versions is defined
+  changed_when: false
+  failed_when: false
+
+- name: "Set global asdf package versions"
+  ansible.builtin.shell: >-
+    . {{ asdf_dir }}/asdf.sh &&
+    asdf global {{ item.item.name }}
+    {{ item.item.global | default(item.item.versions[0]) }}
+  args:
+    executable: "{{ asdf_install_shell | default(omit) }}"
+    chdir: "{{ asdf_home }}"
+  when: item.skipped is not defined and item.rc != 0
+  changed_when: "'set' in result.stdout or 'changed' in result.stdout"
+  register: result
+  with_items: "{{ asdf_plugins_versions.results }}"

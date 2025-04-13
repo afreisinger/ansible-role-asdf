@@ -1,0 +1,29 @@
+---
+# .ansible-lint
+# Configuration for ansible-lint best practices
+
+# Profile to use (minimal, basic, moderate, strict, etc.)
+profile: moderate
+
+# Rules to skip (if necessary)
+skip_list:
+  - experimental  # Ignore experimental rules
+  - no-free-form  # Allow free-form commands when appropriate
+  - name[casing]  # Allow flexibility in task naming
+  - yaml[trailing-spaces]  # Ignore trailing spaces in YAML (optional)
+
+# Rules to warn about
+warn_list:
+  - role-name  # Warn about role names not following recommended format
+  - var-naming  # Warn about variable names not following conventions
+  - fqcn  # Warn about missing fully qualified collection names
+  - no-jinja-when  # Warn about Jinja in when conditions
+  - risky-shell-pipe  # Warn about unsafe shell pipelines
+
+# Exclude specific files or directories
+exclude_paths:
+  - ./molecule/  # Exclude test directories
+  - ./tests/  # Exclude test directories
+  - ./vendor/  # Exclude third-party code
+  - .*.yml  # Exclude auto-generated YAML files
+  - .travis.yml
