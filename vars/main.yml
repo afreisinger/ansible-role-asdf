@@ -3,3 +3,4 @@
 asdf_git_repo: "https://github.com/asdf-vm/asdf.git"
 asdf_home: "{{ ansible_env.HOME }}"
 asdf_dir: "{{ asdf_home }}/.asdf"
+asdf_user: "{{ ansible_user_id }}"cledar
