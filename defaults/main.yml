@@ -3,13 +3,7 @@
 asdf_version: "v0.14.1"
 
 # see README.md for example configuration
-# asdf_plugins: []
-asdf_plugins:
-  - name: "terraform"    # a plugin name
-    repository: ""       # a plugin repository, optional
-    versions:            # a list of the package versions to install
-      - "1.11.4"
-    global: "1.11.4"    # set as a global version, optional
+asdf_plugins: []
 
 # Configure shell
 asdf_init_shell: true
